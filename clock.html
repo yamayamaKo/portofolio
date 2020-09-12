@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script>
+    var ctx;
+    var canvas;
+    var h,m,s;
+
+    //初めに実行する。インターバルの宣言くらい。
+    function init(){
+      canvas = document.getElementById("canvas");
+      ctx = canvas.getContext("2d");
+      window.setInterval(interval,1000);
+    }
+
+    //一秒ごとに実行する関数。今の時間を求め、描画をする。
+    function interval(){
+      var now = new Date();
+      h = now.getHours() % 12;
+      m = now.getMinutes();
+      s = now.getSeconds();
+      document.getElementById("time").textContent = now.toTimeString();
+      paint();
+    }
+
+    //回転角、長さ、太さ、色を受け取って実際に描画する関数。
+    function drawObj(rotation, length, width, color){
+      ctx.save();
+      ctx.lineWidth = width;
+      ctx.strokeStyle = color;
+      ctx.translate(150, 150); //中心に移動。
+      ctx.rotate(rotation);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -length);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    //秒針以外も描画する関数。
+    function paint(){
+      //毎クロック全部消して初期化。
+      ctx.clearRect(0,0,300,300);
+
+      //時計のデザインの部分を描画する。
+      ctx.save();
+      ctx.translate(150,150);
+      ctx.strokeStyle = "black";
+      var r = Math.PI * 2 /60;
+      for(var i=0;i<60;i++){
+        ctx.beginPath();
+        ctx.lineWidth = (i%5==0) ? 3: 1;
+        ctx.moveTo(0,-140);
+        ctx.lineTo(0,-120);
+        ctx.stroke();
+        ctx.rotate(r);
+      }
+      ctx.restore();
+
+      //各針の回転角を求める。
+      var r_h = (Math.PI*2)/12 * h + (Math.PI*2)/12 * (m/60);
+      var r_m = (Math.PI*2)/60 * m;
+      var r_s = (Math.PI*2)/60 * s;
+
+      drawObj(r_h,80,3,"black");
+      drawObj(r_m,100,2,"black");
+      drawObj(r_s,130,1,"red");
+    }
+  </script>
+  </head>
+<body onload="init()">
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <p id="time"></p>
+</body>
+</html>
